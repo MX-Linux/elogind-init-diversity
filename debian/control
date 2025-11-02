@@ -1,0 +1,109 @@
+Source: elogind
+Section: admin
+Priority: optional
+Maintainer: Debian Ecosystem Init Diversity Team <debian-init-diversity@chiark.greenend.org.uk>
+Uploaders: Mark Hindley <leepen@debian.org>,
+           Ian Jackson <ijackson@chiark.greenend.org.uk>
+Standards-Version: 4.7.2
+Vcs-Git: https://git.devuan.org/devuan/elogind.git -b debian
+Vcs-Browser: https://git.devuan.org/devuan/elogind/src/branch/debian
+Homepage: https://github.com/elogind/elogind
+Rules-Requires-Root: no
+Build-Depends: debhelper-compat (= 12),
+               dh-exec (>=0.3),
+               pkgconf,
+               docbook-xsl,
+               meson,
+               gperf (>= 3.1),
+               gtk-doc-tools,
+               python3-jinja2,
+               python3-lxml,
+               libcap-dev,
+               libudev-dev,
+               libseccomp-dev (>= 2.3.1) [amd64 arm64 armel armhf i386 mips mipsel mips64 mips64el x32 powerpc ppc64 ppc64el s390x],
+               libpam0g-dev (>= 1.1.2),
+               libacl1-dev,
+               libselinux1-dev,
+               libmount-dev,
+               libglib2.0-dev <!nocheck>,
+               dbus (>= 1.9.14) <!nocheck>,
+
+Package: elogind
+Section: admin
+Priority: optional
+Architecture: linux-any
+Multi-Arch: foreign
+Pre-Depends: debconf, ${misc:Pre-Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libudev1,
+         libsystemd0,
+         dbus (>= 1.9.14)
+Recommends: libpam-elogind, polkitd
+Conflicts: systemd
+Breaks: libelogind0 (<< 255.5-1debian5)
+Description: user, seat and session management daemon
+ elogind is a session management daemon extracted from systemd project's
+ "logind"
+
+Package: libelogind0
+Section: oldlibs
+Priority: optional
+Architecture: linux-any
+Multi-Arch: same
+Depends: ${misc:Depends},
+         libsystemd0
+Description: user, seat and session management library (transitional package)
+ This is a transitional package to smooth the migration to elogind's use of
+ libsystemd0 compatible cgroups. It can safely be removed.
+
+Package: libpam-elogind
+Section: admin
+Priority: optional
+Architecture: linux-any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         elogind (= ${binary:Version}),
+         libpam-runtime
+Provides: logind (= ${binary:Version})
+Conflicts: logind, libpam-ck-connector
+Replaces: logind
+Description: elogind PAM module
+ Plugable Authentication Module to register a session with elogind
+ 
+Package: libpam-elogind-init-diversity
+Section: admin
+Priority: optional
+Architecture: linux-any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         elogind-init-diversity (= ${binary:Version}),
+         libpam-runtime
+Provides: libpam-elogind
+Conflicts: libpam-ck-connector
+Description: elogind PAM module
+ Plugable Authentication Module to register a session with elogind
+
+Package: elogind-init-diversity
+Section: init-diversity
+Priority: optional
+Architecture: linux-any
+Multi-Arch: foreign
+Pre-Depends: debconf, ${misc:Pre-Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libudev1 | libeudev1,
+         libsystemd0,
+         dbus (>= 1.9.14),
+         elogind | systemd,
+Replaces: elogind
+Recommends: libpam-elogind-init-diversity, polkitd, libelogind0
+Breaks: libelogind0 (<< 255.5-1debian5)
+Description: user, seat and session management daemon
+ elogind is a session management daemon extracted from systemd project's
+ "logind". This package allows elogind to be installed alongside systemd,
+ for a mult-init system.

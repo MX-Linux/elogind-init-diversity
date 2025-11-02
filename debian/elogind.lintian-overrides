@@ -1,0 +1,2 @@
+# elogind conflicts with systemd
+elogind binary: missing-systemd-service-for-init.d-script elogind [etc/init.d/elogind]

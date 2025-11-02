@@ -1,0 +1,8 @@
+elogind with libsystemd0
+=========================================
+
+This version of elogind is patched to use libsystemd0 compatible cgroups and
+must be used on a system with libsystemd0 installed. It will not work with
+libelogind0.
+
+ -- Mark Hindley <leepen@debian.org>, Tue,  7 Nov 2023 17:57:23 +0000

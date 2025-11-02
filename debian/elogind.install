@@ -1,0 +1,20 @@
+usr/bin
+etc/elogind/*.conf
+etc/elogind/*.conf.d
+usr/libexec/
+usr/lib/*/elogind/
+usr/lib/udev/rules.d/70-uaccess.rules
+usr/lib/udev/rules.d/71-seat.rules
+usr/lib/udev/rules.d/73-seat-late.rules
+usr/share/bash-completion/
+usr/share/dbus-1/
+usr/share/locale/
+# Skip license files in /usr/share/doc/elogind
+usr/share/doc/elogind/README.md
+usr/share/man/man1/
+usr/share/man/man5/
+usr/share/man/man7/elogind.*.7
+usr/share/man/man8/elogind.8
+usr/share/polkit-1/
+usr/share/zsh/
+debian/extra/metainfo/elogind.metainfo.xml usr/share/metainfo

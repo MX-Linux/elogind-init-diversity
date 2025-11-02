@@ -1,0 +1,6 @@
+version=4
+
+opts="filenamemangle=s%(?:.*?)?v?@ANY_VERSION@(@ARCHIVE_EXT@)%@PACKAGE@-$1$2%,\
+        uversionmangle=s%-r(\d+)%.$1%" \
+ https://github.com/elogind/elogind/tags \
+ (?:.*?/)?v?@ANY_VERSION@@ARCHIVE_EXT@

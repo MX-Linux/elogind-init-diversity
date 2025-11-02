@@ -1,0 +1,51 @@
+#! /usr/bin/make -f
+
+# The options have been chosen as follows:
+# - manually set pamlibdir because we're installing in /usr by default but
+#   pam libs must go to /lib/*/security, same for udev rules
+# - disable killing users processes by default. This is weird an unexpected
+#   behaviour
+
+CONFFLAGS = \
+  -Ddocdir=/usr/share/doc/elogind \
+  -Dman=enabled \
+  -Ddefault-kill-user-processes=false \
+  -Dtests=true \
+  -Dmode=release
+
+CONFFLAGS_CGROUPCTRL_ELOGIND= \
+  -Dcgroup-controller=elogind
+
+override_dh_auto_configure:
+	dh_auto_configure --builddirectory=build \
+        -- $(CONFFLAGS) $(CONFFLAGS_CGROUPCTRL_ELOGIND)
+
+override_dh_auto_test:
+	# sbuild unshare backend exposes the host system's cgroups which breaks
+	# tests. See #1092514.  Also, within sbuild unshare, ischroot returns
+	# false. See #1056385. So detect user namespace by seeing if
+	# /proc/$$/[ug]id_map is changed from the kernel default.
+	if ! grep -xq '[[:space:]]\{9\}0[[:space:]]\{10\}0[[:space:]]4294967295' /proc/self/[ug]id_map && \
+                mountpoint -q /sys/fs/cgroup ; then \
+                echo "/sys/fs/cgroup mounted within unshared user namespace (sbuild unshare chroot?), skipping tests. "; \
+        else \
+                dh_auto_test; \
+        fi
+
+override_dh_auto_install:
+	dh_auto_install --builddirectory=build
+
+override_dh_auto_clean:
+	dh_auto_clean --builddirectory=build
+	# remove Python byte code files
+	rm -rf tools/__pycache__/
+
+override_dh_makeshlibs:
+	dh_makeshlibs -pelogind -Xlibelogind-shared
+	dh_makeshlibs --remaining
+
+override_dh_shlibdeps:
+	dh_shlibdeps -- -xlibeudev1
+
+%:
+	dh $@  --builddirectory=build --without autoreconf,systemd --buildsystem=meson

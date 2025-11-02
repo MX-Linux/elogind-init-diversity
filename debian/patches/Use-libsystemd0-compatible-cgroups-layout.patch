@@ -1,0 +1,524 @@
+From: Mark Hindley <mark@hindley.org.uk>
+Date: Wed, 1 Nov 2023 20:04:48 +0000
+Subject: Use libsystemd0 compatible cgroups layout.
+
+Fixes:
+
+../meson_options.txt:272: WARNING: Newline character in a string detected, use ''' (three single quotes) for multiline strings instead.
+This will become a hard error in a future Meson release.
+option('libsystemd-compat-cgroups', type : 'boolean', description : 'Use a libsystemd
+                                                                    ^
+---
+ meson.build                |  1 +
+ meson_options.txt          |  1 +
+ src/basic/cgroup-util.c    | 66 +++++++++++++++++++++++++---------------------
+ src/basic/cgroup-util.h    | 24 ++++++++++-------
+ src/basic/unit-name.c      |  4 +--
+ src/basic/unit-name.h      |  4 +--
+ src/login/logind-core.c    | 19 ++++++-------
+ src/login/logind-session.c | 20 +++++++++++---
+ src/login/logind.h         |  4 +--
+ 9 files changed, 85 insertions(+), 58 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index 4fa7bbd..f63942b 100644
+--- a/meson.build
++++ b/meson.build
+@@ -999,6 +999,7 @@ conf.set_quoted('SYSTEMD_CGROUP_CONTROLLER_LEGACY',
+                 '='.join(['name', with_cgroupctrl]))
+ conf.set_quoted('SYSTEMD_CGROUP_CONTROLLER_HYBRID',
+                 '='.join(['name', with_cgroupctrl]))
++conf.set10('LIBSYSTEMD_COMPATIBLE_CGROUPS', get_option('libsystemd-compat-cgroups'))
+ ############################################################
+ #endif // 0
+ 
+diff --git a/meson_options.txt b/meson_options.txt
+index 83d5688..4eae6ca 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -283,6 +283,7 @@ option('default-hierarchy', type : 'combo',
+                 "unified" assumes cgroups version 2 on /sys/fs/cgroup''')
+ option('cgroup-controller', type : 'string',
+        description : 'Name of the cgroup controller to use')
++option('libsystemd-compat-cgroups', type : 'boolean', description : 'Use a libsystemd compatible cgroups layout')
+ #endif // 0
+ #if 0 /// UNNEEDED by elogind
+ # option('extra-net-naming-schemes', type : 'string',
+diff --git a/src/basic/cgroup-util.c b/src/basic/cgroup-util.c
+index fdffa2d..c01bf50 100644
+--- a/src/basic/cgroup-util.c
++++ b/src/basic/cgroup-util.c
+@@ -20,7 +20,9 @@
+ #include "format-util.h"
+ #include "fs-util.h"
+ #include "log.h"
+-// #include "login-util.h"
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
++#include "login-util.h"
++#endif
+ #include "macro.h"
+ #include "missing_magic.h"
+ #include "missing_threads.h"
+@@ -29,13 +31,17 @@
+ #include "path-util.h"
+ #include "process-util.h"
+ #include "set.h"
+-//#include "special.h"
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
++#include "special.h"
++#endif
+ #include "stat-util.h"
+ #include "stdio-util.h"
+ #include "string-table.h"
+ #include "string-util.h"
+ //#include "strv.h"
+-//#include "unit-name.h"
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
++#include "unit-name.h"
++#endif
+ #include "user-util.h"
+ //#include "xattr-util.h"
+ /// Additional includes needed by elogind
+@@ -1131,18 +1137,18 @@ int cg_get_root_path(char **ret_path) {
+         if (r < 0)
+                 return r;
+ 
+-#if 0 /// elogind does not support systemd scopes and slices but other controllers
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind does not support systemd scopes and slices but other controllers
+         e = endswith(p, "/" SPECIAL_INIT_SCOPE);
+         if (!e)
+                 e = endswith(p, "/" SPECIAL_SYSTEM_SLICE); /* legacy */
+         if (!e)
+                 e = endswith(p, "/system"); /* even more legacy */
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         log_debug_elogind("Determined PID 1 root path: \"%s\"", p);
+         e = endswith(p, "/" CGROUP_CONTROLLER_NAME);
+         if (!e)
+                 e = endswith(p, "/elogind"); /* elogind pseudo-controller? */
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         if (e)
+                 *e = 0;
+ 
+@@ -1218,7 +1224,7 @@ int cg_pid_get_path_shifted(pid_t pid, const char *root, char **ret_cgroup) {
+         return 0;
+ }
+ 
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_path_decode_unit(const char *cgroup, char **ret_unit) {
+         char *c, *s;
+         size_t n;
+@@ -1523,10 +1529,10 @@ int cg_path_get_cgroupid(const char *path, uint64_t *ret) {
+         *ret = CG_FILE_HANDLE_CGROUPID(fh);
+         return 0;
+ }
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+ int cg_path_get_session(const char *path, char **ret_session) {
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+         _cleanup_free_ char *unit = NULL;
+         char *start, *end;
+         int r;
+@@ -1547,7 +1553,7 @@ int cg_path_get_session(const char *path, char **ret_session) {
+         *end = 0;
+         if (!session_id_valid(start))
+                 return -ENXIO;
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         /* Elogind uses a flat hierarchy, just "/SESSION".  The only
+            wrinkle is that SESSION might be escaped.  */
+         const char *e, *n, *start;
+@@ -1571,7 +1577,7 @@ int cg_path_get_session(const char *path, char **ret_session) {
+ 
+         if (!start[0])
+                 return -ENXIO;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+         if (ret_session) {
+                 char *rr;
+@@ -1599,12 +1605,12 @@ int cg_pid_get_session(pid_t pid, char **ret_session) {
+ }
+ 
+ int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
+-#if 0 /// elogind needs one more value
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind needs one more value
+         _cleanup_free_ char *slice = NULL;
+         char *start, *end;
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         _cleanup_free_ char *slice = NULL, *p = NULL, *s = NULL;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         int r;
+ 
+         assert(path);
+@@ -1613,7 +1619,7 @@ int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
+         if (r < 0)
+                 return r;
+ 
+-#if 0 /// elogind does not support systemd slices
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind does not support systemd slices
+         start = startswith(slice, "user-");
+         if (!start)
+                 return -ENXIO;
+@@ -1625,7 +1631,7 @@ int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
+         *end = 0;
+         if (parse_uid(start, ret_uid) < 0)
+                 return -ENXIO;
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         p = strjoin("/run/systemd/sessions/", slice);
+ 
+         r = parse_env_file(NULL, p, "UID", &s);
+@@ -1638,7 +1644,7 @@ int cg_path_get_owner_uid(const char *path, uid_t *ret_uid) {
+ 
+         if (parse_uid(s, ret_uid) < 0)
+                 return -ENXIO;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+         return 0;
+ }
+@@ -1661,7 +1667,7 @@ int cg_path_get_slice(const char *p, char **ret_slice) {
+         assert(p);
+         assert(ret_slice);
+ 
+-#if 0 /// elogind does not support systemd slices
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind does not support systemd slices
+         /* Finds the right-most slice unit from the beginning, but
+          * stops before we come to the first non-slice unit. */
+ 
+@@ -1690,7 +1696,7 @@ int cg_path_get_slice(const char *p, char **ret_slice) {
+                 e = p;
+                 p += n;
+         }
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         /* In elogind, what is reported here, is the location of
+          * the session. This is derived from /proc/<self|PID>/cgroup.
+          * In there we look at the controller, which will look something
+@@ -1710,7 +1716,7 @@ int cg_path_get_slice(const char *p, char **ret_slice) {
+                 *ret_slice = strdup(p);
+ 
+         return 0;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ }
+ 
+ int cg_pid_get_slice(pid_t pid, char **ret_slice) {
+@@ -1729,28 +1735,28 @@ int cg_pid_get_slice(pid_t pid, char **ret_slice) {
+ }
+ 
+ int cg_path_get_user_slice(const char *p, char **ret_slice) {
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+         const char *t;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         assert(p);
+         assert(ret_slice);
+ 
+-#if 0 /// nothing to skip in elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// nothing to skip in elogind
+         t = skip_user_prefix(p);
+         if (!t)
+                 return -ENXIO;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+         /* And now it looks pretty much the same as for a system slice, so let's just use the same parser
+          * from here on. */
+         return cg_path_get_slice(t, ret_slice);
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         /* In elogind there is nothing to skip, we can use the path
+          * directly. Generally speaking this is always a session id
+          * to user mapping. */
+         return cg_path_get_slice(p, ret_slice);
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ }
+ 
+ int cg_pid_get_user_slice(pid_t pid, char **ret_slice) {
+@@ -1943,7 +1949,7 @@ int cg_slice_to_path(const char *unit, char **ret) {
+         *ret = TAKE_PTR(s);
+         return 0;
+ }
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+ int cg_is_threaded(const char *path) {
+         _cleanup_free_ char *fs = NULL, *contents = NULL;
+@@ -1991,7 +1997,7 @@ int cg_get_attribute(const char *controller, const char *path, const char *attri
+         return read_one_line_file(p, ret);
+ }
+ 
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_get_attribute_as_uint64(const char *controller, const char *path, const char *attribute, uint64_t *ret) {
+         _cleanup_free_ char *value = NULL;
+         uint64_t v;
+@@ -2185,7 +2191,7 @@ int cg_mask_to_string(CGroupMask mask, char **ret) {
+ 
+         return 0;
+ }
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+ int cg_mask_from_string(const char *value, CGroupMask *ret) {
+         CGroupMask m = 0;
+diff --git a/src/basic/cgroup-util.h b/src/basic/cgroup-util.h
+index 1b170fd..e61d595 100644
+--- a/src/basic/cgroup-util.h
++++ b/src/basic/cgroup-util.h
+@@ -238,7 +238,7 @@ typedef enum  {
+ 
+ int cg_set_attribute(const char *controller, const char *path, const char *attribute, const char *value);
+ int cg_get_attribute(const char *controller, const char *path, const char *attribute, char **ret);
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_get_keyed_attribute_full(const char *controller, const char *path, const char *attribute, char **keys, char **values, CGroupKeyMode mode);
+ 
+ static inline int cg_get_keyed_attribute(
+@@ -265,7 +265,9 @@ int cg_get_attribute_as_uint64(const char *controller, const char *path, const c
+ int cg_get_attribute_as_bool(const char *controller, const char *path, const char *attribute, bool *ret);
+ 
+ int cg_get_owner(const char *path, uid_t *ret_uid);
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
++#if 0 /// UNNEEDED by elogind
+ int cg_set_xattr(const char *path, const char *name, const void *value, size_t size, int flags);
+ int cg_get_xattr(const char *path, const char *name, void *value, size_t size);
+ int cg_get_xattr_malloc(const char *path, const char *name, char **ret);
+@@ -282,9 +284,9 @@ int cg_is_empty_recursive(const char *controller, const char *path);
+ 
+ int cg_get_root_path(char **path);
+ 
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_path_get_cgroupid(const char *path, uint64_t *ret);
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ int cg_path_get_session(const char *path, char **ret_session);
+ int cg_path_get_owner_uid(const char *path, uid_t *ret_uid);
+ int cg_path_get_unit(const char *path, char **ret_unit);
+@@ -306,28 +308,30 @@ int cg_pid_get_machine_name(pid_t pid, char **ret_machine);
+ int cg_pid_get_slice(pid_t pid, char **ret_slice);
+ int cg_pid_get_user_slice(pid_t pid, char **ret_slice);
+ 
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_path_decode_unit(const char *cgroup, char **ret_unit);
+ 
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ bool cg_needs_escape(const char *p);
+ int cg_escape(const char *p, char **ret);
+ char *cg_unescape(const char *p) _pure_;
+ 
+ bool cg_controller_is_valid(const char *p);
+ 
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_slice_to_path(const char *unit, char **ret);
+ 
+ typedef const char* (*cg_migrate_callback_t)(CGroupMask mask, void *userdata);
+ 
+ int cg_mask_supported(CGroupMask *ret);
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ int cg_mask_supported_subtree(const char *root, CGroupMask *ret);
+ int cg_mask_from_string(const char *s, CGroupMask *ret);
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ int cg_mask_to_string(CGroupMask mask, char **ret);
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
++#if 0 /// UNNEEDED by elogind
+ int cg_kernel_controllers(Set **controllers);
+ #endif // 0
+ 
+@@ -373,6 +377,8 @@ typedef enum ManagedOOMPreference {
+ const char* managed_oom_preference_to_string(ManagedOOMPreference a) _const_;
+ ManagedOOMPreference managed_oom_preference_from_string(const char *s) _pure_;
+ 
++#endif // 0
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
+ /* The structure to pass to name_to_handle_at() on cgroupfs2 */
+ typedef union {
+         struct file_handle file_handle;
+@@ -381,4 +387,4 @@ typedef union {
+ 
+ #define CG_FILE_HANDLE_INIT { .file_handle.handle_bytes = sizeof(uint64_t) }
+ #define CG_FILE_HANDLE_CGROUPID(fh) (*(uint64_t*) (fh).file_handle.f_handle)
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+diff --git a/src/basic/unit-name.c b/src/basic/unit-name.c
+index 32a0991..35423fd 100644
+--- a/src/basic/unit-name.c
++++ b/src/basic/unit-name.c
+@@ -110,7 +110,7 @@ bool unit_instance_is_valid(const char *i) {
+ 
+         return in_charset(i, "@" VALID_CHARS);
+ }
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ 
+ bool unit_suffix_is_valid(const char *s) {
+         if (isempty(s))
+@@ -249,7 +249,7 @@ int unit_name_change_suffix(const char *n, const char *suffix, char **ret) {
+         *ret = TAKE_PTR(s);
+         return 0;
+ }
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+ int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret) {
+         UnitType type;
+diff --git a/src/basic/unit-name.h b/src/basic/unit-name.h
+index 80c3282..40bc721 100644
+--- a/src/basic/unit-name.h
++++ b/src/basic/unit-name.h
+@@ -19,7 +19,7 @@ typedef enum UnitNameFlags {
+ bool unit_name_is_valid(const char *n, UnitNameFlags flags) _pure_;
+ bool unit_prefix_is_valid(const char *p) _pure_;
+ bool unit_instance_is_valid(const char *i) _pure_;
+-#if 0 /// UNNEEDED by elogind
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// UNNEEDED by elogind
+ bool unit_suffix_is_valid(const char *s) _pure_;
+ 
+ int unit_name_to_prefix(const char *n, char **ret);
+@@ -32,7 +32,7 @@ int unit_name_to_prefix_and_instance(const char *n, char **ret);
+ UnitType unit_name_to_type(const char *n) _pure_;
+ 
+ int unit_name_change_suffix(const char *n, const char *suffix, char **ret);
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+ 
+ int unit_name_build(const char *prefix, const char *instance, const char *suffix, char **ret);
+ int unit_name_build_from_type(const char *prefix, const char *instance, UnitType, char **ret);
+diff --git a/src/login/logind-core.c b/src/login/logind-core.c
+index 7807a49..63d2112 100644
+--- a/src/login/logind-core.c
++++ b/src/login/logind-core.c
+@@ -372,11 +372,11 @@ int manager_process_button_device(Manager *m, sd_device *d) {
+ }
+ 
+ int manager_get_session_by_pidref(Manager *m, const PidRef *pid, Session **ret) {
+-#if 0 /// elogind does not support systemd units, but its own session system
++#if LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind does not support systemd units, but its own session system
+         _cleanup_free_ char *unit = NULL;
+-#else // 0
++#else // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         _cleanup_free_ char *session_name = NULL;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         Session *s;
+         int r;
+ 
+@@ -385,13 +385,14 @@ int manager_get_session_by_pidref(Manager *m, const PidRef *pid, Session **ret)
+         if (!pidref_is_set(pid))
+                 return -EINVAL;
+ 
++
+         s = hashmap_get(m->sessions_by_leader, pid);
+         if (s) {
+-                r = pidref_verify(pid);
+-                if (r < 0)
+-                        return r;
+-        } else {
+-#if 0 /// elogind does not support systemd units, but its own session system
++               r = pidref_verify(pid);
++               if (r < 0)
++                       return r;
++       } else  {
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind does not support systemd units, but its own session system
+                 r = cg_pidref_get_unit(pid, &unit);
+                 if (r >= 0)
+                         s = hashmap_get(m->session_units, unit);
+@@ -404,7 +405,7 @@ int manager_get_session_by_pidref(Manager *m, const PidRef *pid, Session **ret)
+ 
+                 log_debug_elogind("Session Name \"%s\" -> Session \"%s\"",
+                                   strnull(session_name), s && s->id ? s->id : "(null)");
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         }
+ 
+         if (ret)
+diff --git a/src/login/logind-session.c b/src/login/logind-session.c
+index 4a2cde9..b13ddb4 100644
+--- a/src/login/logind-session.c
++++ b/src/login/logind-session.c
+@@ -43,6 +43,9 @@
+ #include "cgroup-setup.h"
+ #include "extract-word.h"
+ #include "musl_missing.h"
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
++#include "special.h"
++#endif
+ 
+ #define RELEASE_USEC (20*USEC_PER_SEC)
+ 
+@@ -746,19 +749,25 @@ static int session_start_scope(Session *s, sd_bus_message *properties, sd_bus_er
+ #else // 0
+ static int session_start_cgroup(Session *s) {
+         int r;
++        const char *path;
+ 
+         assert(s);
+         assert(s->user);
+         assert(s->leader.pid > 0);
+ 
+         /* First, create our own group */
+-        r = cg_create(SYSTEMD_CGROUP_CONTROLLER, s->id);
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
++        path = path_join(SPECIAL_USER_SLICE, s->user->slice, strjoin("session-", s->id, ".scope"));
++#else
++        path = s->id;
++#endif
++        r = cg_create(SYSTEMD_CGROUP_CONTROLLER, path);
+         if (r < 0)
+-                return log_error_errno(r, "Failed to create cgroup %s: %m", s->id);
++                return log_error_errno(r, "Failed to create cgroup %s: %m", path);
+ 
+-        r = cg_attach(SYSTEMD_CGROUP_CONTROLLER, s->id, s->leader.pid);
++        r = cg_attach(SYSTEMD_CGROUP_CONTROLLER, path, s->leader.pid);
+         if (r < 0)
+-                log_warning_errno(r, "Failed to attach PID %d to cgroup %s: %m", s->leader.pid, s->id);
++                log_warning_errno(r, "Failed to attach PID %d to cgroup %s: %m", s->leader.pid, path);
+ 
+         return 0;
+ }
+@@ -1464,6 +1473,9 @@ SessionState session_get_state(Session *s) {
+ 
+ int session_kill(Session *s, KillWho who, int signo) {
+         assert(s);
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS
++        const char *path;
++#endif
+ 
+         switch (who) {
+ 
+diff --git a/src/login/logind.h b/src/login/logind.h
+index 5c4b1f1..8c83bd0 100644
+--- a/src/login/logind.h
++++ b/src/login/logind.h
+@@ -97,9 +97,9 @@ struct Manager {
+         uint64_t session_counter;
+         uint64_t inhibit_counter;
+ 
+-#if 0 /// elogind does not support session units
++#ifdef LIBSYSTEMD_COMPATIBLE_CGROUPS /// elogind does not support session units
+         Hashmap *session_units;
+-#endif // 0
++#endif // LIBSYSTEMD_COMPATIBLE_CGROUPS
+         Hashmap *user_units;
+ 
+         usec_t inhibit_delay_max;

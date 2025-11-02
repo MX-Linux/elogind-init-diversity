@@ -1,0 +1,4 @@
+debian/extra/pam.d/ /etc
+usr/lib/*/security/pam_elogind.so
+usr/share/man/man8/pam_elogind.8
+debian/extra/pam-configs/ /usr/share/

@@ -1,0 +1,395 @@
+elogind (255.17-1~mx25) mx; urgency=medium
+
+  [ ProwlerGr ]
+  * elogind-init-diversity coplimenting systemd for mult-init
+  [dolphin oracle]
+  * adjustments for mx linux
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sun, 02 Nov 2025 14:43:06 -0500
+
+elogind (255.17-1debian2) unstable; urgency=medium
+
+  * d/control:
+    - bump Standards Version (no changes).
+    - mark libelogind0 MA: same.
+    - move transitional libelogind0 to oldlibs section.
+    - update B-D from transitional pkg-config to pkgconf.
+
+ -- Mark Hindley <leepen@debian.org>  Wed, 02 Apr 2025 08:39:17 +0100
+
+elogind (255.17-1debian1) unstable; urgency=medium
+
+  * New upstream version 255.17. Includes:-
+    - Default to deep suspend and fix sleep.conf documentation
+      (Closes: #1071964)
+  * Only install NEWS in elogind package itself.
+  * Drop patches included upstream.
+  * Refresh patches.
+
+ -- Mark Hindley <leepen@debian.org>  Mon, 20 Jan 2025 09:20:48 +0000
+
+elogind (255.5-1debian5) unstable; urgency=medium
+
+  * d/rules: skip tests if /sys/fs/cgroup is mounted in userns. Fixes FTBFS
+    under sbuild unshare backend. (Closes: #1092514)
+  * Make libelogind0 a transitional package depending on libsystemd0 and
+    drop related libelogind-dev and libelogind-dev-doc.
+    (Closes: #1061297, #1075757)
+  * d/control: elogind Breaks pre-transitional libelogind0.
+  * d/copyright: remove extraneous semicolon (lintian).
+  * d/rules: drop unnecessary override_dh_missing.
+
+ -- Mark Hindley <leepen@debian.org>  Mon, 13 Jan 2025 18:46:11 +0000
+
+elogind (255.5-1debian4) unstable; urgency=medium
+
+  * d/elogind.init: start before docker to ensure libsystemd0-compatible
+    cgroups are not clobbered.  (Closes: #1076728)
+  * d/patches: avoid changing tty ownership and mode on VT reset.
+
+ -- Mark Hindley <leepen@debian.org>  Wed, 08 Jan 2025 09:32:13 +0000
+
+elogind (255.5-1debian3) unstable; urgency=medium
+
+  * d/elogind.init:
+    - start before $x-display-manager. (Closes: 1077676)
+    - fix typo in short description.
+
+ -- Mark Hindley <leepen@debian.org>  Mon, 05 Aug 2024 10:57:36 +0100
+
+elogind (255.5-1debian2) unstable; urgency=medium
+
+  * libelogind0: move libsystemd.so.0 compatibility link to /usr (DEP17).
+    (Closes: #1061527)
+  * d/control: update my email address.
+
+ -- Mark Hindley <leepen@debian.org>  Tue, 18 Jun 2024 15:33:32 +0100
+
+elogind (255.5-1debian1) unstable; urgency=medium
+
+  * New upstream version.
+  * Drop patch fixed upstream.
+  * Add NEWS entry about changed sleep behaviour in 255 series
+    (Closes: #1070032).
+  * d/watch: update to support new -rN upstream numbering.
+
+ -- Mark Hindley <leepen@debian.org>  Wed, 01 May 2024 16:59:31 +0100
+
+elogind (255.4.1-1debian2) unstable; urgency=medium
+
+  * Import upstream patch to fix meson setting of libexecdir.
+  * d/rules: don't need to specify default udevrulesdir.
+
+ -- Mark Hindley <leepen@debian.org>  Tue, 16 Apr 2024 08:00:52 +0100
+
+elogind (255.4.1-1debian1) unstable; urgency=medium
+
+  * New upstream version.
+    - includes fixed sd_listen_fds(3) manpage (Closes: #1050561).
+  * d/p: refresh patches and remove one applied upstream.
+  * d/rules:
+    - change meson boolean argument from true to enabled.
+    - remove split-/usr configuration.
+  * d/control: bump Standards Version (no changes).
+  * d/*.install: update for merged-/usr.
+  * d/elogind.init: update as binary is now installed in /usr/libexec.
+  * d/elogind.install: include sleep.conf.d and fragments.
+  * d/libelogind-dev.links: move unversioned link below /usr.
+
+ -- Mark Hindley <leepen@debian.org>  Sun, 14 Apr 2024 14:21:19 +0100
+
+elogind (252.9-1debian3) unstable; urgency=medium
+
+  * d/control: add Build-Depends: libmount-dev to fix nocheck build.
+    (Closes: #1059028)
+
+ -- Mark Hindley <leepen@debian.org>  Tue, 26 Dec 2023 17:26:30 +0000
+
+elogind (252.9-1debian2) unstable; urgency=medium
+
+  * d/changelog: add retrospective closes for #1051439.
+  * Add elogind README.Debian.
+  * d/elogind.postinst: fix typo in header comment.
+  * d/elogind.postinst: reword libelogind0 -> libsystemd0 messages
+  * d/elogind.postinst: use start-stop-daemon with retry to stop running
+    DBus services.
+  * d/p: Fix meson multiline string warning.
+
+ -- Mark Hindley <leepen@debian.org>  Mon, 13 Nov 2023 18:28:27 +0000
+
+elogind (252.9-1debian1) experimental; urgency=medium
+
+  * New upstream version 252.9
+    - includes arch:loongarch64 support (Closes: #1051439).
+  * Remove unnecessary build-depends.
+  * d/gbp.conf: update upstream-tag format.
+  * d/patches:
+    - rename for consistency and add headers
+    - new patch to use libsystemd0 compatible cgroups.
+    - new patch to fixup rpath for executables: shared lib is installed
+      in rootlibexecdir.
+    - refresh
+    - drop patch applied upstream
+  * d/control:
+    - elogind depends libsystemd0 and conflicts libelogind0 (Closes: #1052064).
+    - remove obsolete lsb-base dependency.
+    - Update VCs-* following gitea migration.
+  * d/elogind.install:
+    - add private lib, now in /lib/<triplet>/elogind.
+    - d/elogind.install: include /etc/elogind/sleep.conf.
+  * d/not-installed: update pam.d/elogind-user path.
+  * d/elogind.postinst: on upgrade, kill polkitd to ensure it utilises
+    libsystemd0.
+
+ -- Mark Hindley <leepen@debian.org>  Sun, 05 Nov 2023 16:31:54 +0000
+
+elogind (246.10-1debian1) unstable; urgency=medium
+
+  * New upstream version 246.10, includes fix for building with gcc >= 10.
+  * Add patch to reenable runtime only policykit support disabled upstream.
+  * Override lintian missing-systemd-service-for-init.d-script elogind.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Tue, 17 Jan 2023 08:46:22 +0000
+
+elogind (246.9.1-2) unstable; urgency=medium
+
+  * Remove unnecessary build-depends (Closes: #980898)
+  * d/control:
+     - change policykit-1 recommends to polkitd (Closes: #1025560)
+     - bump Standards Version (no changes)
+  * Symlink .so file in -dev package rather than using compile time
+    generated file: fixes lintian warning.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Mon, 16 Jan 2023 12:49:09 +0000
+
+elogind (246.9.1-1+debian1) unstable; urgency=medium
+
+  * New upstream version 246.9.1
+      + Log to syslog rather than kernel log (Closes: #964006).
+  * d/changelog: fix typo in previous entry.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Tue, 22 Dec 2020 16:53:57 +0000
+
+elogind (246.9-1+debian1) unstable; urgency=medium
+
+  [ Mark Hindley ]
+  * Merge upstream v246.9
+    + Support ABI of systemd-logind 246 (Closes: #968379).
+  * Refresh quilt patch.
+  * d/control: update Vcs-* following gitea migration.
+  * Document solutions for libelogind0/libsystemd-dev build-depends
+    conflict.
+  * Change rootlibdir to /lib.
+
+  [ Unit193 ]
+  * d/control: Rules-Requires-Root: no.
+  * d/control: change to debhelper-compat.
+  * d/control: cleanup wrapping and whitespace.
+  * d/control: update to Standards Version 4.5.1 (no changes).
+  * d/control: remove dpkg-dev build-dep that is automatically satisfied.
+  * d/copyright: use HTTPS scheme for url.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Sat, 19 Dec 2020 16:44:07 +0000
+
+elogind (243.7-1+debian1) unstable; urgency=medium
+
+  * New upstream version 243.7.
+  * Update to Standards version 4.5.0 (no changes).
+
+ -- Mark Hindley <mark@hindley.org.uk>  Sun, 24 May 2020 11:26:10 +0100
+
+elogind (241.3-1+debian3) unstable; urgency=medium
+
+  * Change default for RemoveIPC to no (Closes: #949698).
+
+ -- Mark Hindley <mark@hindley.org.uk>  Sun, 26 Jan 2020 11:40:19 +0000
+
+elogind (241.3-1+debian2) unstable; urgency=medium
+
+  * Only build-depend on libseccomp-dev on architectures supporting it.
+    Thanks to John Paul Adrian Glaubitz for the suggestion. (Closes: #940681).
+  * Update Build-Depends minimum versions.
+  * Add details of sd-daemon(3) implementation to libelogind0 package
+    description.
+  * elogind Recommends libpam-elogind.
+  * Update to standards version 4.4.1 (no changes).
+
+ -- Mark Hindley <mark@hindley.org.uk>  Thu, 14 Nov 2019 18:40:09 +0000
+
+elogind (241.3-1+debian1) unstable; urgency=medium
+
+  [ Mark Hindley ]
+  * New upstream release v241.3.
+  * Upgrade to Standards Version 4.4.0 (no changes).
+  * Correctly license AppStream metadata as CC0-1.0 in d/copyright.
+
+  [ Andreas Messer ]
+  * Retire from maintenance of this package.
+
+  [ Andreas Beckmann ]
+  * Simplify libsystemd.so compatibility symlink setup.  (Closes: #926591)
+
+ -- Mark Hindley <mark@hindley.org.uk>  Tue, 09 Jul 2019 08:51:27 +0100
+
+elogind (241.1-1+debian1) unstable; urgency=medium
+
+  * New upstream version v241.1.
+  * libelogind0 is ABI compatible with libsystemd0 so conflict, replace and
+    provide libsystemd0 (=${source:Upstream-Version}), and also install
+    libsystemd.so symlinks (Closes: #923244).
+  * libelogind0 conflicts systemd to prevent co-installation.
+  * Change AppStream metadata license to LGPL-2.1+ to match other files in
+    debian/.
+  * Move libelogind-dev-doc to Section: doc.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Wed, 13 Mar 2019 06:01:06 +0000
+
+elogind (239.3+20190131-1+debian1) unstable; urgency=medium
+
+  * New snapshot of upstream/v239-stable.
+  * Remove local patches now fixed upstream.
+  * libpam-elogind provides new virtual package logind (versioned).
+  * Use new SIGINT handler for graceful restarts in initscript.
+  * Specify debian branch in Vcs-* fields.
+  * Update to Standards version 4.3.0 (no changes).
+  * Correct closes bug number in 239.3-4+debian1 changelog.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Mon, 04 Feb 2019 08:35:44 +0000
+
+elogind (239.3-4+debian1) unstable; urgency=medium
+
+  * Set AppStream component id to begin with a reverse domain name.
+  * Add Breaks and Replaces libelogind-dev (<< 239.1+20181115-1) to
+    libelogind-dev-doc (Closes: #916768).
+
+ -- Mark Hindley <mark@hindley.org.uk>  Wed, 19 Dec 2018 09:15:05 +0000
+
+elogind (239.3-3+debian1) unstable; urgency=medium
+
+  * Preserve session and seat data when restarting (Closes: #916247).
+
+ -- Mark Hindley <mark@hindley.org.uk>  Fri, 14 Dec 2018 00:48:03 +0000
+
+elogind (239.3-2+debian1) unstable; urgency=medium
+
+  * Fix stale pidfile handling (Closes: #916212).
+  * Add separate reload option to initscript.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Thu, 13 Dec 2018 11:26:15 +0000
+
+elogind (239.3-1+debian1) unstable; urgency=medium
+
+  * New upstream release.
+  * Delete Dbus_lib_machine-id patch, now included upstream.
+  * Delete manpage-branding.diff, now incorporated upstream.
+  * Use CC0-1.0 for AppStream metadata license.
+  * Correct typos in debian/rules comments.
+  * Correct typo in Vcs-Git url.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Fri, 07 Dec 2018 11:14:43 +0000
+
+elogind (239.2-1+debian1) UNRELEASED; urgency=medium
+
+  * New upstream version 239.2.
+  * Enable compile-time testsuite which depends on dbus.
+  * Include busctl manpage.
+  * Support /var/lib/dbus/machine-id as alternative to /etc/machine-id.
+  * Enable SELinux support.
+  * Change Vcs- fields to point to https://git.devuan.org/devuan-packages/
+  * Set correct debian-branch and upstream-tag in debian/gbp.conf.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Tue, 27 Nov 2018 18:37:09 +0000
+
+elogind (239.1+20181115-1) unstable; urgency=medium
+
+  * Upstream fix to address excessive delay closing sessions.
+  * Revert to default setting for poweroff-path. This can be overridden by
+    sysadmin in logind.conf.
+  * To build proposed different policykit-1 flavours, we will need to install
+    libsystemd-dev and libelogind-dev simlultaneously. So
+     - move dev manpages, coding style and gvariant serialisation documentation
+       to a new libelogind-dev-doc package.
+     - libelogind-dev suggests libelogind-dev-doc and no longer conflicts with
+       libsystemd-dev.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Thu, 15 Nov 2018 10:38:59 +0000
+
+elogind (239.1+20181112+gd4a3f291e395+nosubmodule-1+debian1) unstable; urgency=medium
+
+  * Update to upstream 239.2 prerelease. [Mark Hindley]
+  * Change version number to +20181112+gd4a3f291e395. [Ian Jackson]
+  * Make debian-init-diversity list the Maintainer and add myself
+    to Uploaders. [Ian Jackson]
+
+ -- Ian Jackson <ijackson@chiark.greenend.org.uk>  Tue, 13 Nov 2018 14:06:37 +0000
+
+elogind (239.1-1+debian1~rc2) unstable; urgency=medium
+
+  * Update fix for SIGABRT to upstream #92.
+  * Disable Dbus activation by default.
+  * Use shutdown rather than poweroff as the latter is missing on runit systems.
+  * Remove upstream pwx git submodule. Thanks to Ian Jackson.
+  * libelogind-dev conflicts libsystemd-dev.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Fri, 09 Nov 2018 13:01:28 +0000
+
+elogind (239.1-1+debian1~rc1) unstable; urgency=medium
+
+  * Initial upload to Debian (closes: #905388).
+  * New upstream release v239.1.
+  * Rework packaging for meson buildsystem.
+  * Change libpam-elogind Breaks dependencies to Conflicts.
+  * Update to debhelper compat 11.
+  * Update to Standards version 4.2.1 (no changes).
+  * Enable LTO build as it works with binutils from unstable (2.31.1).
+  * Include manpages in -dev package.
+  * Move documentation consistency changes to a  quilt patch.
+  * Add AppStream metainfo.
+  * Add upstream watchfile.
+  * Don't package /lib/udev/rules.d/70-power-switch.rules which is also in udev.
+  * Configure with -Dsplit-usr=true to ensure consistent build.
+  * Fix SIGABRT on daemonization caused by freeing overlapping pointers to
+    program_invocation[_short]_name (Upstream:
+    https://github.com/elogind/elogind/issues/92).
+  * New version of /etc/pam.d/elogind-user based on Debian systemd.
+
+ -- Mark Hindley <mark@hindley.org.uk>  Wed, 07 Nov 2018 16:31:31 +0000
+
+elogind (234.4-2~exp1) experimental; urgency=medium
+
+  * debian/rules
+    - Make libpam-elogind break libpam-ck-connector
+  * enable pristine-tar
+
+ -- Andreas Messer <andi@bastelmap.de>  Thu, 22 Feb 2018 19:49:52 +0100
+
+elogind (234.4-1+devuan1.4) experimental; urgency=medium
+
+  *  debian/libelogind-dev.install
+    -  Drop manpages to allow installation in parallel
+       with libsystemd-dev
+  * debian/extras/elogind
+    - enable elogind pam by default
+
+ -- Andreas Messer <andi@bastelmap.de>  Wed, 07 Feb 2018 22:23:46 +0100
+
+elogind (234.4-1+devuan1.3) experimental; urgency=medium
+
+  * debian/patches/fix-forking.diff
+    - Fix startpar not erminating due to open file descriptors after
+      forking
+
+ -- Andreas Messer <andi@bastelmap.de>  Sat, 27 Jan 2018 12:44:32 +0100
+
+elogind (234.4-1+devuan1.2) experimental; urgency=medium
+
+  * debian/rules
+    - disable killing background processes on logout
+
+ -- Andreas Messer <andi@bastelmap.de>  Sat, 20 Jan 2018 16:53:32 +0100
+
+elogind (234.4-1+devuan1) experimental; urgency=medium
+
+  * Initial release.
+
+ -- Andreas Messer <andi@bastelmap.de>  Thu, 04 Jan 2018 19:26:09 +0100

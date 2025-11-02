@@ -1,0 +1,11 @@
+elogind (255.4.1-1debian1) unstable; urgency=medium
+
+  The 255 series of elogind changes the default Mode for suspend from
+  suspend2ram to suspend2idle. To revert to the previous default you can
+  add a line with SuspendMode=deep in elogind's sleep.conf*; for example:-
+
+   $ cat /etc/elogind/sleep.conf.d/20-suspend.conf
+   [Sleep]
+   SuspendMode=deep
+
+ -- Mark Hindley <mark@hindley.org.uk>  Wed, 01 May 2024 14:05:18 +0100

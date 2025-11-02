@@ -1,0 +1,11 @@
+#!/usr/bin/dh-exec
+usr/bin/elogind*
+etc/elogind/*.conf
+etc/elogind/*.conf.d
+usr/libexec/
+usr/lib/*/elogind/
+usr/share/locale/
+usr/share/doc/elogind/README.md
+usr/share/zsh/
+debian/elogind.init => /etc/init.d/elogind
+debian/extra/metainfo/elogind.metainfo.xml usr/share/metainfo

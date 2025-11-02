@@ -1,0 +1,32 @@
+#!/bin/sh
+# postinst script for elogind
+#
+# see: dh_installdeb(1)
+
+set -e
+
+case "$1" in
+    configure)
+            if dpkg --compare-versions "$2" lt "252.9-1debian1~" ; then
+                    echo
+                    echo "Elogind now uses libsystemd0 rather than libelogind0." >&2
+                    echo "Running services and sessions (both console and graphical) may need to be restarted to utilise the correct library." >&2
+                    echo
+                    echo "Checking for activated DBus services that require restarting:" >&2
+                    for dbus_name in org.freedesktop.PolicyKit1 ;
+                    do
+                            dbus_pid=$(($(busctl status "$dbus_name" | awk -F= '/^PID=/ {print $2}')+0))
+                            if [ "$dbus_pid" -gt 0 ]
+                            then
+                                    echo "Stopping activated DBus service $dbus_name (PID $dbus_pid)."
+                                    start-stop-daemon --stop --pid "$dbus_pid" --retry 5
+                            fi
+                    done
+                    echo "Please reboot the system as soon as is convenient." >&2
+                    echo
+    fi
+esac
+
+#DEBHELPER#
+
+exit 0

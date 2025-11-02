@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <id>org.devuan.elogind</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>elogind</name>
+  <summary>User, seat and session management daemon</summary>
+  <description>
+    <p>
+     elogind is a session management daemon extracted from systemd project's "logind"
+    </p>
+  </description>
+    <provides>
+    <modalias>usb:v058Fp6254d*</modalias>
+    <modalias>usb:v17E9p401Ad*</modalias>
+  </provides>
+</component>

@@ -1,0 +1,21 @@
+From: Mark Hindley <mark@hindley.org.uk>
+Date: Wed, 24 May 2023 11:30:53 +0100
+Subject: Disable_Dbus_activation_by_default
+
+---
+ src/login/org.freedesktop.login1.service.in | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/login/org.freedesktop.login1.service.in b/src/login/org.freedesktop.login1.service.in
+index 822f476..bd37d0b 100644
+--- a/src/login/org.freedesktop.login1.service.in
++++ b/src/login/org.freedesktop.login1.service.in
+@@ -7,5 +7,7 @@
+ 
+ [D-BUS Service]
+ Name=org.freedesktop.login1
+-Exec={{LIBEXECDIR}}/elogind --daemon
++# By default, Dbus activation of elogind is disabled. The daemon is started via an init script.
++# Exec={{LIBEXECDIR}}/elogind --daemon
++Exec=/bin/true
+ User=root
