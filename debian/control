@@ -99,7 +99,7 @@ Depends: ${shlibs:Depends},
          libudev1 | libeudev1,
          libsystemd0,
          dbus (>= 1.9.14),
-         elogind | systemd,
+         systemd,
 Replaces: elogind
 Recommends: libpam-elogind-init-diversity, polkitd, libelogind0
 Breaks: libelogind0 (<< 255.5-1debian5)
