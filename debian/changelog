@@ -1,3 +1,9 @@
+elogind (255.17-1.0experimental2~mx25) mx; urgency=medium
+
+  * keep elogind-init-diversity (not a shim)
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 15 Nov 2025 14:58:39 -0500
+
 elogind (255.17-1.0experimental2) UNREALEASED; urgency=medium
 
   * Renamed elogind-init-diversity to elogind-shim as functional replacement to systemd-shim.
