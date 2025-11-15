@@ -72,21 +72,6 @@ Conflicts: logind, libpam-ck-connector
 Replaces: logind
 Description: elogind PAM module
  Plugable Authentication Module to register a session with elogind
- 
-Package: libpam-elogind-init-diversity
-Section: admin
-Priority: optional
-Architecture: linux-any
-Multi-Arch: same
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         elogind-init-diversity (= ${binary:Version}),
-         libpam-runtime
-Provides: libpam-elogind
-Conflicts: libpam-ck-connector
-Description: elogind PAM module
- Plugable Authentication Module to register a session with elogind
 
 Package: elogind-init-diversity
 Section: init-diversity
@@ -100,8 +85,9 @@ Depends: ${shlibs:Depends},
          libsystemd0,
          dbus (>= 1.9.14),
          systemd,
+         libpam-systemd,
 Replaces: elogind
-Recommends: libpam-elogind-init-diversity, polkitd, libelogind0
+Recommends: systemd-init-diversity, polkitd
 Breaks: libelogind0 (<< 255.5-1debian5)
 Description: user, seat and session management daemon
  elogind is a session management daemon extracted from systemd project's

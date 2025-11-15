@@ -1,11 +1,15 @@
-elogind (255.17-1~mx25) mx; urgency=medium
+elogind (255.17-1.0experimental2) UNREALEASED; urgency=medium
 
-  [ ProwlerGr ]
-  * elogind-init-diversity coplimenting systemd for mult-init
-  [dolphin oracle]
-  * adjustments for mx linux
+  * Renamed elogind-init-diversity to elogind-shim as functional replacement to systemd-shim.
+  * Maintainer scripts updated to handle init script functions (Thanks @Dolphin_Oracle)
 
- -- Dolphin Oracle <dolphinoracle@gmail.com>  Sun, 02 Nov 2025 14:43:06 -0500
+ -- ProwlerGr <Prowler73@gmail.com>  Sun, 02 Nov 2025 22:22:22 +1000
+
+elogind (255.17-1.0experimental1) UNREALEASED; urgency=medium
+
+  * elogind-init-diversity coplimenting systemd for multi-init
+
+ -- ProwlerGr <Prowler73@gmail.com>  Fri, 24 Oct 2025 22:22:22 +1000
 
 elogind (255.17-1debian2) unstable; urgency=medium
 
