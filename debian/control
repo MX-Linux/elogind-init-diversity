@@ -86,8 +86,12 @@ Depends: ${shlibs:Depends},
          dbus (>= 1.9.14),
          systemd,
          libpam-systemd,
-Replaces: elogind
-Recommends: systemd-init-diversity, polkitd
+Replaces: elogind, 
+          libpam-elogind, 
+          elogind-shim,
+Recommends: systemd-init-diversity,
+            sysvinit-init-diversity, 
+            polkitd,
 Breaks: libelogind0 (<< 255.5-1debian5)
 Description: user, seat and session management daemon
  elogind is a session management daemon extracted from systemd project's

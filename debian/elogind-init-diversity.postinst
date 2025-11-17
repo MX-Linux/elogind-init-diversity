@@ -7,6 +7,9 @@ set -e
 
 case "$1" in
     configure)
+    
+    pam-auth-update --package
+    
             if dpkg --compare-versions "$2" lt "252.9-1debian1~" ; then
                     echo
                     echo "Elogind now uses libsystemd0 rather than libelogind0." >&2
