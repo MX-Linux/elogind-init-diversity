@@ -1,3 +1,11 @@
+elogind (255.17-1.0experimental6) UNREALEASED; urgency=medium
+
+  * libpam-runtime added to depends.
+  * libpam-systemd moved to recommends.
+  * replaces elogind-shim targeting version.
+
+ -- ProwlerGr <Prowler73@gmail.com>  Tue, 18 Nov 2025 23:23:23 +1000
+
 elogind (255.17-1.0experimental5) UNREALEASED; urgency=medium
 
   * Updated control file to replace files from former elogind-shim.
