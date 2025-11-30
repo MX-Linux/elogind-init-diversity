@@ -1,3 +1,9 @@
+elogind (255.17-1.0experimental6.1~mx25) mx; urgency=medium
+
+  * mx version 
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sun, 30 Nov 2025 16:29:22 -0500
+
 elogind (255.17-1.0experimental6) UNREALEASED; urgency=medium
 
   * libpam-runtime added to depends.
