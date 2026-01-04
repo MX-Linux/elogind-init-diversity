@@ -1,3 +1,9 @@
+elogind (255.17-1.0e~mx25) mx; urgency=medium
+
+  * adjust versioning
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 03 Jan 2026 19:00:03 -0500
+
 elogind (255.17-1.0experimental6.1~mx25) mx; urgency=medium
 
   * mx version 
