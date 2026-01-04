@@ -1,3 +1,10 @@
+elogind (255.17-1~mx25u1) mx; urgency=medium
+
+  * adjust control file to remove elogind-init-diversity depend
+    from other packages
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sun, 04 Jan 2026 10:50:06 -0500
+
 elogind (255.17-1~mx25) mx; urgency=medium
 
   * adjust versioning
