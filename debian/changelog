@@ -1,3 +1,9 @@
+elogind (255.17-1~mx25u2) mx; urgency=medium
+
+  * make sure elogind init script is executable
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Thu, 08 Jan 2026 18:45:16 -0500
+
 elogind (255.17-1~mx25u1) mx; urgency=medium
 
   * adjust control file to remove elogind-init-diversity depend
