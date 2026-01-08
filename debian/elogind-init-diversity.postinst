@@ -30,6 +30,11 @@ case "$1" in
     fi
 esac
 
+#ensure init script is executable
+if [ -e /etc/init.d/elogind ]; then
+	chmod a+x /etc/init.d/elogind
+fi
+
 # Automatically added by dh_installinit/13.24.2
 if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
 	if [ -z "$DPKG_ROOT" ] && [ -x "/etc/init.d/elogind" ]; then
