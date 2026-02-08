@@ -13,6 +13,10 @@
 
 set -e
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# don't run in systemd
+[ /proc/1/exe -ef /usr/lib/systemd/systemd ] &&  exit 0
+
 # /etc/init.d/elogind: start and stop the elogind session management daemon
 
 ELOGIND=/usr/libexec/elogind

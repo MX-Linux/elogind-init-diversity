@@ -1,3 +1,10 @@
+elogind (255.17-1~mx25u3) mx; urgency=medium
+
+  * prevent elogind from starting when systemd is pid 1
+  * interferes with systemd-logind functions
+
+ -- Dolphin Oracle <dolphinoracle@gmail.com>  Sat, 07 Feb 2026 20:17:32 -0500
+
 elogind (255.17-1~mx25u2) mx; urgency=medium
 
   * make sure elogind init script is executable
