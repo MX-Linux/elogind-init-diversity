@@ -17,5 +17,5 @@ index 822f476..bd37d0b 100644
 -Exec={{LIBEXECDIR}}/elogind --daemon
 +# By default, Dbus activation of elogind is disabled. The daemon is started via an init script.
 +# Exec={{LIBEXECDIR}}/elogind --daemon
-+Exec=/bin/true
++Exec=/bin/false
  User=root

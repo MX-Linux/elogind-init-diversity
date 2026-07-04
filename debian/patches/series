@@ -1,2 +1,3 @@
 Disable_Dbus_activation_by_default.patch
 Use-libsystemd0-compatible-cgroups-layout.patch
+0003-errno-list-filter-out-EFSBADCRC-and-EFSCORRUPTED.patch

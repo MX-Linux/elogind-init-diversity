@@ -1,3 +1,48 @@
+elogind (255.17-1debian6) unstable; urgency=medium
+
+  * Cherry pick upstream patch to filter aliased errnos.
+    Fixes FTBFS with v7.0 kernel headers.  (Closes: #1136764)
+  * d/control: bump Standards Version (no changes).
+
+ -- Mark Hindley <leepen@debian.org>  Fri, 15 May 2026 20:46:27 +0100
+
+elogind (255.17-1debian5) unstable; urgency=medium
+
+  * Revert "d/rules: fix arm64 FTBFS with gcc 15." (Closes: #1127149)
+  * d/p/Disable_Dbus_activation_by_default.patch: change to Exec=bin/false to
+    avoid Dbus callers hanging if elogind has been disabled.  (Closes:
+    #1129339)
+  * d/elogind.init: match correct name of running daemon.
+  * Lintian fixes:-
+    - rename appstream metainfo file using rDNS to match cid.
+    - d/control: update selinux B-D to libselinux-dev.
+
+ -- Mark Hindley <leepen@debian.org>  Wed, 04 Mar 2026 09:51:04 +0000
+
+elogind (255.17-1debian4) unstable; urgency=medium
+
+  * d/control:
+    - bump Standards Version (drop Priority: optional).
+    - drop 'R³: no' now it is the default.
+  * d/elogind.NEWS: drop, obsolete. (Closes: #1114667)
+  * d/elogind.init: port to init-d-script(5).
+  * d/copyright: remove FSF postal address (lintian).
+
+ -- Mark Hindley <leepen@debian.org>  Fri, 30 Jan 2026 14:00:21 +0000
+
+elogind (255.17-1debian3) unstable; urgency=medium
+
+  * d/control:
+    - change pkg-config Build-Depends to pkgconf.
+    - bump debhelper-compat to 13.
+    - drop Build-Depends: dbus. (Closes: #1122564)
+    - utilise virtual packages for dbus runtime depends. (Closes: #1122564)
+  * d/rules:
+    - fix arm64 FTBFS with gcc 15. (Closes: #1110452)
+    - correct debhelper --remaining to --remaining-packages.
+
+ -- Mark Hindley <leepen@debian.org>  Mon, 15 Dec 2025 09:41:09 +0000
+
 elogind (255.17-1~mx25u3) mx; urgency=medium
 
   * prevent elogind from starting when systemd is pid 1

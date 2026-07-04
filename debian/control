@@ -4,12 +4,11 @@ Priority: optional
 Maintainer: Debian Ecosystem Init Diversity Team <debian-init-diversity@chiark.greenend.org.uk>
 Uploaders: Mark Hindley <leepen@debian.org>,
            Ian Jackson <ijackson@chiark.greenend.org.uk>
-Standards-Version: 4.7.2
+Standards-Version: 4.7.4
 Vcs-Git: https://git.devuan.org/devuan/elogind.git -b debian
 Vcs-Browser: https://git.devuan.org/devuan/elogind/src/branch/debian
 Homepage: https://github.com/elogind/elogind
-Rules-Requires-Root: no
-Build-Depends: debhelper-compat (= 12),
+Build-Depends: debhelper-compat (= 13),
                dh-exec (>=0.3),
                pkgconf,
                docbook-xsl,
@@ -23,10 +22,9 @@ Build-Depends: debhelper-compat (= 12),
                libseccomp-dev (>= 2.3.1) [amd64 arm64 armel armhf i386 mips mipsel mips64 mips64el x32 powerpc ppc64 ppc64el s390x],
                libpam0g-dev (>= 1.1.2),
                libacl1-dev,
-               libselinux1-dev,
+               libselinux-dev,
                libmount-dev,
                libglib2.0-dev <!nocheck>,
-               dbus (>= 1.9.14) <!nocheck>,
 
 Package: elogind
 Section: admin
@@ -38,7 +36,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          libudev1,
          libsystemd0,
-         dbus (>= 1.9.14)
+         default-dbus-system-bus | dbus-system-bus
 Recommends: libpam-elogind, polkitd
 Conflicts: systemd
 Breaks: libelogind0 (<< 255.5-1debian5)
